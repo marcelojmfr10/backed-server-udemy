@@ -29,8 +29,13 @@ app.get('/', (request, response, next) => {
     //     });
     // });
 
+    var desde = request.query.desde || 0;
+    desde = Number(desde);
+
     // segundo párametro del find indica que campos se desean mostrar
     Usuario.find({}, 'nombre email img role')
+        .skip(desde)
+        .limit(5)
         .exec((err, usuarios) => {
             if (err) {
                 return response.status(500).json({
@@ -40,10 +45,13 @@ app.get('/', (request, response, next) => {
                 });
             }
 
-            response.status(200).json({
-                ok: true,
-                usuarios: usuarios
-            });
+            Usuario.count({}, (err, conteo) => {
+                response.status(200).json({
+                    ok: true,
+                    usuarios: usuarios,
+                    total: conteo
+                });
+            })
         });
 });
 
